@@ -1,10 +1,14 @@
 
 <div align="center">
   <img src="assets/logo.png" width="120"/>
-  <h1>TileRT: Tile-Based Runtime for<br>Ultra-Low Latency LLM Inference</h1>
+  <h1>TileRT: Tile-Based Runtime for<br>Ultra-Low-Latency LLM Inference</h1>
   <p>
-    <a href=""><b>Installation</b></a> |
-    <a href=""> <b>Getting Started</b></a>
+    <a href="https://pypi.org/project/tilert/"><img src="https://img.shields.io/pypi/v/tilert" alt="PyPI version" height="20"></a>
+    <a href="https://huggingface.co/Tile-AI"><img src="https://img.shields.io/badge/%F0%9F%A4%97%20Hugging%20Face-Spaces-blue" alt="Hugging Face" height="20"></a>
+  </p>
+  <p>
+    <a href="#installation"><b>Installation</b></a> |
+    <a href="#getting-started"><b>Getting Started</b></a>
   </p>
 </div>
 
@@ -27,11 +31,3 @@ Fig. Evaluation setup: Input seqlen/output seqlen: 1K/1K, SGLang-0.5.5, vLLM-0.1
 </p>
 
 TileRT is a continuously evolving project. Our ongoing plans include pursuing more aggressive optimizations, supporting various batch sizes, more model families and more hardware, and establishing a new foundation for low-latency AI inference. Stay tuned for updates!
-
-## Getting Started
-
-### Prerequisites
-
-### Installation
-
-### Quick Start
