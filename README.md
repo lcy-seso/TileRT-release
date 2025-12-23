@@ -11,93 +11,94 @@
   </p>
 </div>
 
-TileRT is an experimental project that explores core compiler techniques designed to serve large language models in ultra-low-latency scenarios. Unlike existing inference systems built for high-throughput batch processing, TileRT focuses on delivering extreme responsiveness—critical for applications such as high-frequency trading, interactive AI, real-time decision-making, long-running agents, and AI coding, where users care more about the latency of a few requests or even a single request.
+## News
 
-The goal of the TileRT project is to push the latency boundaries of LLMs without compromising model size or quality—for example, enabling models with hundreds of billions of parameters to run at millisecond-level TPOT.
+- **\[2025-12-23\]** ⚡ **[v0.1.1](https://github.com/tile-ai/TileRT/releases/tag/v0.1.1)** — Achieved ~35% reduction in end-to-end token generation latency on a single node with 8× NVIDIA B200. See our latest benchmarks for detailed measurements.
+
+- **\[2025-11-20\]** 🚀 **[v0.1.0-alpha.1](https://github.com/tile-ai/TileRT/releases/tag/v0.1.0-alpha.1)** — Initial release of TileRT for DeepSeek-V3.2-Exp, designed for **ultra-low-latency** inference. Available on [PyPI](https://pypi.org/project/tilert) and [HuggingFace](https://huggingface.co/Tile-AI/DeepSeek-V3.2-Exp-TileRT).
+
+## TileRT: Pushing LLM Latency to the Limit
+
+TileRT is an experimental project exploring core compiler techniques for serving large language models (LLMs) in **ultra-low-latency** scenarios. Its goal is to push the latency limits of LLMs without compromising model size or quality—for example, enabling models with hundreds of billions of parameters to achieve millisecond-level **time per output token (TPOT)**.
 
 <p align="center">
 <img src="assets/generate.gif" alt="TileRT Benchmark"><br>
-Fig. Sequence generation using SGLang (left), vLLM (middle), and TileRT (right) with the DeepSeek-V3.2-Exp model.
+Figure 1. Sequence generation with TileRT.
 </p>
 
-TileRT addresses these challenges with a new tile-level runtime engine. It uses a compiler-driven approach to decompose LLM operators into fine-grained tile-level tasks, and a tile-level runtime that reschedules compute, I/O, and communication across multiple devices in a highly overlapped manner. This allows TileRT to minimize idle time and maximize hardware utilization. These compiler techniques will be incorporated into TileLang and TileScale.
-
-We evaluated TileRT’s preliminary performance using the DeepSeek-V3.2-Exp model (without lossy optimizations such as quantization or distillation) with a batch size of 1 on 8× NVIDIA B200 GPUs. As shown in the benchmark below, TileRT significantly outperforms existing inference systems:
+We evaluated TileRT’s preliminary performance using the [**DeepSeek-V3.2-Exp**](https://huggingface.co/deepseek-ai/DeepSeek-V3.2-Exp) model (without lossy optimizations such as quantization or distillation) with a batch size of 1 on 8× NVIDIA B200 GPUs. As shown in the benchmark below, TileRT demonstrates substantial improvements over existing inference systems.
 
 <p align="center">
-<img src="assets/perf.png" alt="TileRT Benchmark" width="400"><br>
-Fig. Evaluation setup: batch size: 1, input seqlen/output seqlen: 1K/1K, SGLang-0.5.5, vLLM-0.11.0, CUDA-12.9
+<img src="assets/perf.png" alt="TileRT Benchmark" width="500"><br>
+Figure 2. Evaluation setup. Batch size: 1, Input sequence length/Output sequence length: 1K/1K; SGLang v0.5.6, TensorRT-LLM v1.2.0-rc5, vLLM v0.13.0, TileRT v0.1.1 with CUDA 12.9.
 </p>
 
-TileRT is a continuously evolving project. Our ongoing plans include pursuing more aggressive optimizations, supporting various batch sizes, more model families and more hardware, and establishing a new foundation for low-latency AI inference. Stay tuned for updates!
+Unlike traditional inference systems optimized for high-throughput batch processing, TileRT prioritizes **responsiveness**, which is critical for applications such as high-frequency trading, interactive AI, real-time decision-making, long-running agents, and AI-assisted coding, where the latency of individual requests matters most.
 
-- [Installation](#installation)
-  - [Prerequisites](#prerequisites)
-    - [**Hardware**](#hardware)
-    - [**Operating System**](#operating-system)
-    - [**Python**](#python)
-    - [**PyTorch Build**](#pytorch-build)
-  - [Python Package Installation](#python-package-installation)
-    - [Docker Installation](#docker-installation)
-- [Getting Started](#getting-started)
-  - [Download Pre-Converted Weights from HuggingFace](#download-pre-converted-weights-from-huggingface)
-    - [Option 1: Using `huggingface-cli` (recommended)](#option-1-using-huggingface-cli-recommended)
-    - [Option 2: Using Git + Git LFS](#option-2-using-git--git-lfs)
-  - [Running the Generation Example](#running-the-generation-example)
-- [Status & Future Work](#status--future-work)
+To achieve this, TileRT introduces a **tile-level runtime engine**. Leveraging a compiler-driven approach, LLM operators are decomposed into fine-grained tile-level tasks, while the runtime dynamically reschedules computation, I/O, and communication across multiple devices in a highly overlapped manner. This design minimizes idle time and improves hardware utilization.
+
+The project is actively evolving, and the underlying compiler techniques will be gradually shared with the community as they are integrated into **TileLang** and **TileScale**.
 
 ## Installation
 
+- [Prerequisites](#prerequisites)
+- [Python Package Installation](#python-package-installation)
+
 ### Prerequisites
 
-Before installing the TileRT wheel package, please ensure your environment meets the following requirements:
+Before installing TileRT, ensure your environment meets the following requirements:
 
-#### **Hardware**
+**Hardware Requirements**
 
-- 8 NVIDIA B200 GPUs
+- 8× NVIDIA B200 GPUs
 
-#### **Operating System**
+**Operating System**
 
 - Linux x86_64 (Ubuntu 20.04 or later recommended)
 
-#### **Python**
+**Python Version**
 
 - Python 3.11 – 3.12
-  *(The wheel is built and tested against these versions.)*
+  *(The wheel package is built and tested against these versions.)*
 
-#### **PyTorch Build**
+**PyTorch Build**
 
-- PyTorch wheels compiled for CUDA 12.8 or 12.9 (matching the driver/runtime above for B200)
+- PyTorch wheels compiled for CUDA 12.8 or 12.9
+  *(Must match the CUDA driver/runtime version required for B200 GPUs.)*
 
 ### Python Package Installation
 
 > \[!IMPORTANT\]
-> ***Disclaimer***: TileRT is an experimental project. The current preview build supports the 8-GPU B200 setup. For the most reliable experience, we strongly recommend installing the package within the provided Docker image.
+> **Disclaimer**: TileRT is an experimental project. The current pre-built package supports the 8-GPU B200 setup. For the most reliable experience, we strongly recommend installing the package within the provided Docker image.
 
-#### Docker Installation
+The recommended installation method is using the pre-configured Docker image, which includes all necessary dependencies.
 
-To get started, pull the Docker image:
+**Step 1: Pull the Docker image**
 
 ```bash
 docker pull tileai/tilert:v0.1.0
 ```
 
-Then, launch a Docker container using the following command:
+**Step 2: Launch a Docker container**
 
 ```bash
 IMAGE_NAME="tileai/tilert:v0.1.0"
-WORKSPACE_PATH="xxx"  # Path to the workspace you want to mount
+WORKSPACE_PATH="/path/to/your/workspace"  # Replace with your actual workspace path
 
 docker run --gpus all -it \
     -v $WORKSPACE_PATH:/workspace/ \
     $IMAGE_NAME
 ```
 
-After the container starts, install the TileRT package:
+**Step 3: Install the TileRT package**
+
+Once inside the container, install TileRT using pip:
 
 ```bash
 pip install tilert
 ```
+
+You're now ready to use TileRT! Proceed to the [Getting Started](#getting-started) section to download model weights and run your first inference.
 
 ## Getting Started
 
@@ -147,20 +148,14 @@ docker run --gpus all -it \
 Once inside the container, you can run the following Python script:
 
 ```python
-import torch  # TileRT requires PyTorch runtime to be loaded first
-from tilert.generate import ShowHandsGenerator
+from tilert.models.deepseek_v3_2.dsa_show_hands import ShowHandsGenerator
 
-# Initialize the generator with desired settings
-generator = ShowHandsGenerator(
-    max_new_tokens=4000,
-    temperature=0.0,
-    model_weights_dir="xxx",  # Specify your model weights directory here
+generator: ShowHandsGenerator = ShowHandsGenerator(
+    max_new_tokens=1000,
+    model_weights_dir=MODEL_WEIGHTS_DIR,
 )
-
-# Load pre-trained weights
 generator.from_pretrained()
 
-# Example prompt to test the model's generation abilities
 prompt = """Tell me three jokes:
 
 1. A dad joke,
@@ -168,22 +163,23 @@ prompt = """Tell me three jokes:
 3. A joke that only makes sense if you've ever tried to train a large language model.
 Keep each joke under 15 words.
 """
+
 print("Prompt:", prompt)
 print("Completion:")
-completion = generator.generate(prompt)
+completion: generator.generate(prompt)
 ```
 
 For instance, using the above prompt, TileRT might generate:
 
 ```text
 1. I'm afraid for the calendar. Its days are numbered.
-2. There are 10 types of people: those who understand binary and those who don't.
-3. My model just generated a coherent sentence. I think I'll go lie down.
+2. There are only 10 kinds of people: those who understand binary and those who don't.
+3. My model's loss is low, but its answers are still nonsense. Overfitting.
 ```
 
 This example gives you a quick idea of the type of output you can expect from the precompiled model.
 
-For more details, please refer to the [generation script](https://github.com/tile-ai/TileRT/blob/main/tilert/generate.py).
+For more details, please refer to the [generation script](https://github.com/tile-ai/TileRT/blob/main/python/generate.py).
 
 ## Status & Future Work
 
